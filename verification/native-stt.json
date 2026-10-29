@@ -1,0 +1,59 @@
+{
+  "requestId": "60c3c80a-1c5f-4429-ade9-3df077bbf912",
+  "capability": "transcribe",
+  "result": {
+    "text": "What is Sales Report?",
+    "segments": [
+      {
+        "text": " What is Sales Report?",
+        "startMs": 0,
+        "endMs": 2000,
+        "append": false,
+        "id": 0
+      }
+    ]
+  },
+  "provenance": {
+    "provider": "qvac-local",
+    "sdkContract": "@qvac/sdk@0.22.0",
+    "requestId": "60c3c80a-1c5f-4429-ade9-3df077bbf912",
+    "capability": "transcribe",
+    "startedAt": "2026-10-29T14:43:28.476Z",
+    "completedAt": "2026-10-29T14:43:42.652Z",
+    "elapsedMs": 14176,
+    "steps": [
+      {
+        "capability": "transcribe",
+        "modelType": "whispercpp-transcription",
+        "requestIds": [
+          "7e4e1b80-d21a-4065-b7e0-6b3622f76a45",
+          "86ba7c7a-7675-4851-9cfc-7bfad8f6f8c0"
+        ],
+        "artifacts": [
+          {
+            "name": "ggml-tiny.en.bin",
+            "bytes": 77704715,
+            "modifiedAt": "2026-10-29T14:30:31.353Z"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "name": "voice-question.wav",
+      "sha256": "058e35406ecfbff377e408e9598cea755ace401e584429264de6bba87d37db5b",
+      "bytes": 168628,
+      "extension": ".wav",
+      "mime": "audio/wav",
+      "encoding": 1,
+      "channels": 1,
+      "sampleRate": 44100,
+      "byteRate": 88200,
+      "blockAlign": 2,
+      "bits": 16,
+      "seconds": 1.9113832199546485
+    },
+    "advisoryOnly": true,
+    "toolsExecuted": false,
+    "networkModelDownloads": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "verifiedAt": "2026-10-29T14:39:49.867Z",
+  "verified": true,
+  "provider": "qvac-local",
+  "operation": "textToSpeech",
+  "requestId": "803b59de-e90c-45b2-a184-827c9a88164f",
+  "applicationAbortObserved": true,
+  "cancellationRequestAcknowledged": true,
+  "stopReason": "cancelled",
+  "terminalErrors": [],
+  "elapsedMs": 571,
+  "model": "models/supertonic-q4_0.gguf",
+  "note": "A real bounded TTS request was cancelled by requestId through RuntimeController cancel-active. Native cancellation is cooperative and other engine paths may settle differently."
+}

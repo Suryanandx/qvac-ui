@@ -1,0 +1,40 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 515 >>
+stream
+BT /F1 12 Tf 50 760 Td 16 TL
+(Northstar Analytics - Remote Work Policy [synthetic test document]) Tj T*
+(Effective date: 1 November 2026.) Tj T*
+(Employees may work remotely up to three days per week.) Tj T*
+(Core collaboration hours are 10:00 to 15:00 local time.) Tj T*
+(Equipment: the company provides a laptop and a 300 USD home-office stipend.) Tj T*
+(Requests for fully remote arrangements need approval from a department head.) Tj T*
+(Policy owner: People Operations. Review cycle: every 12 months.) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000807 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+877
+%%EOF

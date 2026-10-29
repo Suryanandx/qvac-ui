@@ -1,0 +1,26 @@
+[
+  {
+    "path": "fixtures/voice-question.wav",
+    "text": "What is a sales report?",
+    "origin": "Locally synthesized by QVAC Supertonic from an invented test prompt. Not a recording of a real person or meeting.",
+    "sha256": "058e35406ecfbff377e408e9598cea755ace401e584429264de6bba87d37db5b",
+    "bytes": 168628,
+    "sampleRate": 44100,
+    "seconds": 1.9113832199546485,
+    "model": "models/supertonic-q4_0.gguf",
+    "modelLicense": "OpenRAIL",
+    "verification": "verification/native-both-smoke.json"
+  },
+  {
+    "path": "fixtures/meeting-recording.wav",
+    "text": "Our sales grew by twelve percent this month. Priya will prepare the revenue report by Friday, and Sam will review the customer renewal list.",
+    "origin": "Locally synthesized by QVAC Supertonic from an invented test prompt. Not a recording of a real person or meeting.",
+    "sha256": "2b763b9b36df9ce06dade8284c55fe37b1d0f0702052c7d379a359ad1252ebbc",
+    "bytes": 824110,
+    "sampleRate": 44100,
+    "seconds": 9.343151927437642,
+    "model": "models/supertonic-q4_0.gguf",
+    "modelLicense": "OpenRAIL",
+    "verification": "verification/native-both-smoke.json"
+  }
+]

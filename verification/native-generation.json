@@ -1,0 +1,42 @@
+{
+  "ranAt": "2026-10-29T21:54:44.886Z",
+  "host": "darwin arm64, 64.0 GB",
+  "results": [
+    {
+      "kind": "image",
+      "run": 1,
+      "ok": true,
+      "seconds": 47.5,
+      "bytes": 560458,
+      "freeBeforeGB": "4.1",
+      "freeAfterGB": "3.9"
+    },
+    {
+      "kind": "music",
+      "run": 1,
+      "ok": true,
+      "seconds": 8.8,
+      "bytes": 1843244,
+      "freeBeforeGB": "3.9",
+      "freeAfterGB": "10.8"
+    },
+    {
+      "kind": "image",
+      "run": 2,
+      "ok": true,
+      "seconds": 34.7,
+      "bytes": 763718,
+      "freeBeforeGB": "10.8",
+      "freeAfterGB": "3.7"
+    },
+    {
+      "kind": "music",
+      "run": 2,
+      "ok": true,
+      "seconds": 7.7,
+      "bytes": 1812524,
+      "freeBeforeGB": "3.7",
+      "freeAfterGB": "9.0"
+    }
+  ]
+}

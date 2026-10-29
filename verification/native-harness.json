@@ -1,0 +1,241 @@
+{
+  "ranAt": "2026-10-29T21:48:47.130Z",
+  "brain": "Qwen3.5 4B · vision",
+  "host": "darwin arm64",
+  "passed": 19,
+  "total": 19,
+  "results": [
+    {
+      "name": "Meeting notes with speakers",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "meeting_notes:done"
+      ],
+      "answer": "Here are the meeting notes from the recording:\n\n**Summary:** The team discussed the mobile app launch plan. The beta build is ready, but a privacy review is needed before release. Speaker 1 will book the privacy review with legal by Wednesday. Speaker 2 will fix a login crash and ship a new beta on Thursday. The public launch is delayed to November 10th. Speaker 2 asked who is writing the release notes, as it has not been assigned yet.\n\n**Decisions:**\n- Delay public launch to November 10th\n- Book privacy review with legal by Wednesday\n- Fix login crash and ship new beta on Thursday\n\n**Action Items:**\n- **Speaker 1:** Book privacy review with legal (Due: Wednesday)\n- **Speaker 2:** Fix login ",
+      "user": "Write meeting notes for this recording.",
+      "elapsedMs": 38951
+    },
+    {
+      "name": "Document intake (vision fields)",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "extract_fields:done",
+        "show_ui:done"
+      ],
+      "answer": "Here are the invoice details extracted from the image:\n\n| Field | Value |\n|-------|-------|\n| Vendor | Northstar Analytics |\n| Invoice Number | INV-2026-1042 |\n| Subtotal | $1,200.00 |\n| Tax | $96.00 |\n| Total | $1,296.00 |\n\nAll the requested fields have been successfully extracted from the invoice image.",
+      "user": "Extract vendor, invoice number, subtotal, tax and total from this invoice.",
+      "elapsedMs": 36480
+    },
+    {
+      "name": "OCR invoice question",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "read_image_text:done"
+      ],
+      "answer": "This is a test invoice image with sample data. It's labeled as a \"SYNTHETIC TEST FIXTURE\" and contains fictional business information for testing purposes. The invoice is from \"Northstar Analytics\" to \"Sample Ridge Labs\" with a total due of $1,296.00.\n\nWould you like me to:\n- Extract specific fields from this invoice into a table?\n- Classify the image type?\n- Perform any other analysis on this document?",
+      "user": "/ocr",
+      "elapsedMs": 22766
+    },
+    {
+      "name": "Look at an image",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "look_at_image:done"
+      ],
+      "answer": "This image shows a digital invoice document that is clearly marked as a \"SYNTHETIC TEST FIXTURE — NOT A REAL INVOICE.\"\n\n**Key details:**\n- **Issuer:** Northstar Analytics (labeled as \"Sample business documentation\")\n- **Invoice Number:** INV-2026-1042\n- **Issued Date:** September 30, 2026\n- **Due Date:** October 30, 2026\n- **Bill To:** Sample\n\nThe document appears to be a test fixture used for testing invoice processing systems rather than a real, billable invoice.",
+      "user": "What is in this image? Describe it.",
+      "elapsedMs": 37900
+    },
+    {
+      "name": "CSV totals by region",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "analyze_table:done"
+      ],
+      "answer": "**Total Revenue:** $180,810\n\n**Revenue by Region:**\n- **West:** $69,150 (38.2%)\n- **South:** $60,270 (33.3%)\n- **North:** $51,390 (28.4%)\n\nThe West region generated the most revenue, followed by the South, with the North contributing the least. All regions show consistent unit pricing of $2,220 per unit.",
+      "user": "What is total revenue, and how does it split by region?",
+      "elapsedMs": 20935
+    },
+    {
+      "name": "PDF summary",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "extract_fields:done"
+      ],
+      "answer": "According to the remote work policy:\n\n- **Remote days allowed:** 3 days per week\n- **Stipend offered:** $300 USD per week\n\nThis means employees can work remotely up to three days each week and receive a weekly stipend of $300 for those remote days.",
+      "user": "How many remote days does this policy allow, and what stipend is offered?",
+      "elapsedMs": 21659
+    },
+    {
+      "name": "Word document",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "search_files:done"
+      ],
+      "answer": "According to the vendor onboarding checklist, the **IT department** must complete the security review before access is granted to new vendors.",
+      "user": "Who must complete the security review according to this checklist?",
+      "elapsedMs": 16555
+    },
+    {
+      "name": "Private vault search",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "search_vault:done"
+      ],
+      "answer": "Based on the meeting notes, **Priya** is preparing the renewal analysis (which appears to be part of the revenue reporting process). The notes state:\n\n- Priya will prepare the renewal analysis by November 5, 2026\n- The team reviewed six months of sales with total booked revenue of $180,810\n- The renewal analysis is needed before they can decide on pricing retention\n\nThe meeting also noted that an owner and deadline for reviewing the support onboarding guide are still unspecified.",
+      "user": "Search the vault: who is preparing the revenue report?",
+      "elapsedMs": 21048
+    },
+    {
+      "name": "Translate to Spanish",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "translate_text:done"
+      ],
+      "answer": "Aquí está la traducción al español:\n\n**\"El informe trimestral ya está listo. Revise el presupuesto antes del viernes.\"**",
+      "user": "Translate into Spanish: \"The quarterly report is ready. Please review the budget before Friday.\"",
+      "elapsedMs": 17713
+    },
+    {
+      "name": "Skill: invoice check",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "use_skill:done",
+        "extract_fields:done",
+        "show_ui:done"
+      ],
+      "answer": "The invoice check is complete. Here are the results:\n\n**Invoice Details:**\n- **Vendor:** Northstar Analytics\n- **Invoice Number:** INV-2026-1042\n- **Issue Date:** September 30, 2026\n- **Due Date:** October 30, 2026\n- **Total:** $1,296.00 USD\n\n**Checks Passed:**\n- ✓ Line items sum correctly ($1,000 + $200 = $1,200 subtotal)\n- ✓ Subtotal + tax = total ($1,200 + $96 = $1,296)\n- ✓ Due date is after issue date\n\nNo OCR errors or calculation discrepancies found. The invoice is mathematically consistent and ready for review.",
+      "user": "/skill invoice-check",
+      "elapsedMs": 49391
+    },
+    {
+      "name": "BCI decode then speak",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "decode_brain_signals:done",
+        "speak:done"
+      ],
+      "answer": "The brain recording has been decoded. The sentence the participant attempted to speak was: **\"Not too controversial.\"**\n\nI've also generated a 1.8-second audio clip of this sentence being read aloud for you to play.",
+      "user": "Decode this brain recording, then read the sentence aloud.",
+      "elapsedMs": 27089
+    },
+    {
+      "name": "Voice round trip",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "transcribe_audio:done",
+        "speak:done"
+      ],
+      "answer": "A Sales Report is a document or analysis that summarizes sales performance data. It typically includes:\n\n- Total sales revenue\n- Breakdown by region, product, or salesperson\n- Comparison against targets or previous periods\n- Top-performing items or representatives\n- Trends and insights\n\nSales reports help businesses track performance, identify opportunities, and make data-driven decisions. They're commonly generated from CSV files containing sales data, and can show totals, ranges, and per-group sums for different time periods or categories.\n\nIs there a specific sales report you'd like me to analyze from a file, or were you asking about the general concept?",
+      "user": "What is Sales Report?",
+      "elapsedMs": 13675
+    },
+    {
+      "name": "Image classification",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "classify_image:done"
+      ],
+      "answer": "The attached image (invoice.png) has been classified as a **report** with 78.9% confidence. The other classifications were \"other\" (16.9%) and \"food\" (4.2%).",
+      "user": "/classify",
+      "elapsedMs": 8932
+    },
+    {
+      "name": "Typed decision",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "decide:done"
+      ],
+      "answer": "Based on the decision model analysis, **Finance should approve** invoice INV-2026-1042 for $1,296.\n\nThe model scored this recommendation at 66.6%, with the reasoning that:\n- The invoice matches the purchase order\n- The goods were delivered\n- There are no red flags requiring hold or rejection\n\nThe alternative options were scored lower: Hold (26.1%) and Reject (7.3%). Since all verification criteria are met, approval is the recommended action.",
+      "user": "Use the decision model: invoice INV-2026-1042 for $1,296 matches the purchase order and was delivered. Should finance approve, hold, or reject it?",
+      "elapsedMs": 23130
+    },
+    {
+      "name": "Create a flow",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "create_flow:done"
+      ],
+      "answer": "I've created the `read-aloud` flow for you. It will:\n\n1. Use OCR to extract text from an attached image\n2. Speak the extracted text aloud\n\nYou can run it anytime with `/flow read-aloud` followed by attaching an image.",
+      "user": "Create a flow called read-aloud that reads the text in an image with OCR and then speaks it.",
+      "elapsedMs": 23871
+    },
+    {
+      "name": "Research via Wikipedia connector",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "wikipedia_search:done",
+        "wikipedia_summary:done"
+      ],
+      "answer": "Ada Lovelace was born on **December 10, 1815**, according to the Wikipedia summary. She died on November 24, 1852.",
+      "user": "Using Wikipedia, when was Ada Lovelace born?",
+      "elapsedMs": 29194
+    },
+    {
+      "name": "Generation without models explains how to install",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "generate_image:failed"
+      ],
+      "answer": "",
+      "user": "Generate an image of a red bicycle.",
+      "elapsedMs": 19293
+    },
+    {
+      "name": "MCP tool with approval",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [
+        "notes__add_note:done"
+      ],
+      "answer": "Note saved! I've added your reminder to call the Acme team about the renewal on Monday.",
+      "user": "Save a note: call the Acme team about the renewal on Monday.",
+      "elapsedMs": 18892
+    },
+    {
+      "name": "Offline mode blocks connectors",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "tools": [],
+      "answer": "I'm currently in offline mode, so I can't access Wikipedia directly. However, I can share what I know about Grace Hopper from my training data:\n\nGrace Hopper (1906-1992) was a pioneering American computer scientist and United States Navy Rear Admiral. She's best known for:\n\n- **Coining the term \"debugging\"** - she removed an actual moth from a relay in 1947, which led to the word \"debug\" becoming common in computing\n- **Developing early compilers** - she created the first compiler for the A-0 programming language in 1952\n- **Advocating for COBOL** - she was instrumental in developing COBOL (Common Business Oriented Language), one of the first high-level programming languages\n- **Promoting co",
+      "user": "Using Wikipedia, who was Grace Hopper?",
+      "elapsedMs": 17555
+    }
+  ]
+}

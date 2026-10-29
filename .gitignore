@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.local/
+.claude/
+*.log
+.DS_Store
+
+# Model weights and their download receipts stay on your machine.
+# Licenses and model cards in models/ are committed.
+models/*.gguf
+models/*.bin
+models/*.receipt.json

@@ -1,0 +1,155 @@
+{
+  "verifiedAt": "2026-10-29T14:36:32.418Z",
+  "reports": [
+    {
+      "capability": "tts",
+      "verified": true,
+      "inputText": "What is a sales report?",
+      "audio": {
+        "path": "fixtures/voice-question.wav",
+        "bytes": 168628,
+        "extension": ".wav",
+        "mime": "audio/wav",
+        "encoding": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "byteRate": 88200,
+        "blockAlign": 2,
+        "bits": 16,
+        "seconds": 1.9113832199546485
+      },
+      "provenance": {
+        "provider": "qvac-local",
+        "sdkContract": "@qvac/sdk@0.22.0",
+        "requestId": "dc946d8f-b569-44c2-b098-dc995c840f19",
+        "capability": "tts",
+        "startedAt": "2026-10-29T14:36:12.052Z",
+        "completedAt": "2026-10-29T14:36:16.543Z",
+        "elapsedMs": 4490,
+        "steps": [
+          {
+            "capability": "tts",
+            "modelType": "tts-ggml",
+            "requestIds": [
+              "8b061bba-a07c-44d1-9272-111e2a298d42",
+              "96bb560e-5f4e-4d54-afbb-c8b7fb5c98cc"
+            ],
+            "artifacts": [
+              {
+                "name": "supertonic-q4_0.gguf",
+                "bytes": 131956256,
+                "modifiedAt": "2026-10-29T14:33:53.570Z"
+              }
+            ],
+            "engine": "supertonic"
+          }
+        ],
+        "input": {
+          "textSha256": "44386c8d2c329c5cc64c42a5c716c341811c63d0c107f4a94c73095afbb5f65e",
+          "characters": 23
+        },
+        "advisoryOnly": true,
+        "toolsExecuted": false,
+        "networkModelDownloads": false
+      }
+    },
+    {
+      "capability": "tts",
+      "verified": true,
+      "inputText": "Our sales grew by twelve percent this month. Priya will prepare the revenue report by Friday, and Sam will review the customer renewal list.",
+      "audio": {
+        "path": "fixtures/meeting-recording.wav",
+        "bytes": 824110,
+        "extension": ".wav",
+        "mime": "audio/wav",
+        "encoding": 1,
+        "channels": 1,
+        "sampleRate": 44100,
+        "byteRate": 88200,
+        "blockAlign": 2,
+        "bits": 16,
+        "seconds": 9.343151927437642
+      },
+      "provenance": {
+        "provider": "qvac-local",
+        "sdkContract": "@qvac/sdk@0.22.0",
+        "requestId": "17acf8af-6a9f-448f-9ee8-a50d64a45925",
+        "capability": "tts",
+        "startedAt": "2026-10-29T14:36:16.548Z",
+        "completedAt": "2026-10-29T14:36:21.133Z",
+        "elapsedMs": 4585,
+        "steps": [
+          {
+            "capability": "tts",
+            "modelType": "tts-ggml",
+            "requestIds": [
+              "417d5574-af24-4d21-bab8-4180c6fcccac",
+              "dd9e99bb-fe5f-44ff-ac0f-837dbaa8af07"
+            ],
+            "artifacts": [
+              {
+                "name": "supertonic-q4_0.gguf",
+                "bytes": 131956256,
+                "modifiedAt": "2026-10-29T14:33:53.570Z"
+              }
+            ],
+            "engine": "supertonic"
+          }
+        ],
+        "input": {
+          "textSha256": "1a57327f8da630fbafeafbbbe21139aed9a5ed4ddb9df30e66895b9033452787",
+          "characters": 140
+        },
+        "advisoryOnly": true,
+        "toolsExecuted": false,
+        "networkModelDownloads": false
+      }
+    },
+    {
+      "capability": "decide",
+      "verified": true,
+      "output": "verification/decision-sample.json",
+      "provenance": {
+        "provider": "qvac-local",
+        "sdkContract": "@qvac/sdk@0.22.0",
+        "requestId": "44b9f37b-4ed3-4927-81b6-32937ce5b625",
+        "capability": "decide",
+        "startedAt": "2026-10-29T14:36:21.141Z",
+        "completedAt": "2026-10-29T14:36:32.417Z",
+        "elapsedMs": 11276,
+        "steps": [
+          {
+            "capability": "decide",
+            "modelType": "llamacpp-decision",
+            "requestIds": [
+              "7463e6e4-c869-4f65-97a0-a759af1aebbe",
+              "adb9fb67-ae21-4221-b10e-4d0e674630c7"
+            ],
+            "artifacts": [
+              {
+                "name": "laya-typed-decisions-Q8_0.gguf",
+                "bytes": 449919104,
+                "modifiedAt": "2026-10-29T14:34:41.460Z"
+              }
+            ]
+          }
+        ],
+        "input": {
+          "textSha256": "d65790244bf3533efdaced685997ac90bce2db496fd9094182d6e224de351ffd",
+          "characters": 705
+        },
+        "questionsSha256": "ba03c2b4b1a365618d9ffbaeb79335a8be229dcec299611fbef7ff10b6b2960c",
+        "questionIds": [
+          "discrepancy_severity",
+          "disposition",
+          "duplicate",
+          "matches_order",
+          "urgency"
+        ],
+        "advisoryOnly": true,
+        "toolsExecuted": false,
+        "networkModelDownloads": false
+      }
+    }
+  ]
+}

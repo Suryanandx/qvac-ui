@@ -1,0 +1,13 @@
+{
+  "fixture": true,
+  "rows": 36,
+  "revenue_usd": 180810,
+  "units": 990,
+  "byRegion": {
+    "North": 51390,
+    "South": 60270,
+    "West": 69150
+  },
+  "january_revenue": 21810,
+  "june_revenue": 38460
+}

@@ -1,0 +1,22 @@
+QVAC UI
+Copyright 2026 QVAC UI contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+QVAC UI is an independent open-source project. It is not affiliated with,
+endorsed by or sponsored by Tether or Thesys. "QVAC" refers to the QVAC SDK
+(@qvac/sdk, Apache-2.0, by Tether) that this project uses.
+
+Third-party software:
+- @qvac/sdk (Apache-2.0) - licenses/QVAC-APACHE-2.0.txt
+- @openuidev/react-lang, @openuidev/lang-core (MIT) - licenses/OPENUI-MIT.txt
+- @modelcontextprotocol/sdk (MIT), pdfjs-dist (Apache-2.0), mammoth (BSD-2-Clause),
+  pg (MIT), React (MIT), zod (MIT), lucide-react (ISC), csv-parse (MIT)
+
+Model weights are not distributed in this repository except where noted in
+fixtures/. Each model has its own license, shown in Settings -> Models and in
+the per-file receipts in models/.
+
+fixtures/bci/ contains example recordings from a public BCI research dataset.
+Their redistribution license has not been independently verified; see
+fixtures/bci/README.md.

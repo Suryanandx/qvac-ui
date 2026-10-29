@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "tickets": [
+    {
+      "id": "SUP-001",
+      "text": "We were charged twice for invoice 1042. Please refund the duplicate payment.",
+      "expectedTeam": "billing"
+    },
+    {
+      "id": "SUP-002",
+      "text": "The production dashboard is unavailable for every user. We cannot see new orders.",
+      "expectedTeam": "technical"
+    },
+    {
+      "id": "SUP-003",
+      "text": "Can you explain what is included in the trial plan?",
+      "expectedTeam": "general"
+    }
+  ]
+}

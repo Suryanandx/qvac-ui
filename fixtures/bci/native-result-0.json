@@ -1,0 +1,62 @@
+{
+  "requestId": "e501739e-899b-4d86-b0e1-2992c2f57492",
+  "capability": "bci",
+  "result": {
+    "text": "You can see the good at this point as well.",
+    "segments": [
+      {
+        "text": "You can see the good at this point as well.",
+        "startMs": 0,
+        "endMs": 30000,
+        "append": false,
+        "id": 0
+      }
+    ],
+    "dayIndex": 1
+  },
+  "provenance": {
+    "provider": "qvac-local",
+    "sdkContract": "@qvac/sdk@0.22.0",
+    "requestId": "e501739e-899b-4d86-b0e1-2992c2f57492",
+    "capability": "bci",
+    "startedAt": "2026-10-29T14:35:42.433Z",
+    "completedAt": "2026-10-29T14:36:04.922Z",
+    "elapsedMs": 22486,
+    "steps": [
+      {
+        "capability": "bci",
+        "modelType": "bci-whispercpp-transcription",
+        "requestIds": [
+          "c66ca009-d9f4-4e7f-8384-7e98eaa6e192",
+          "405476c9-ff7b-49ae-8160-b3a53ff4e743"
+        ],
+        "artifacts": [
+          {
+            "name": "ggml-bci-windowed.bin",
+            "bytes": 87756577,
+            "modifiedAt": "2026-10-29T14:34:33.733Z"
+          },
+          {
+            "name": "bci-embedder.bin",
+            "bytes": 25028476,
+            "modifiedAt": "2026-10-29T14:34:57.786Z",
+            "role": "embedder"
+          }
+        ],
+        "dayIndex": 1
+      }
+    ],
+    "input": {
+      "name": "neural_sample_0.bin",
+      "sha256": "47a5c42f9f7d9e55e889120fc9f54e73b21d38029e521d157373699d913a67da",
+      "bytes": 1863688,
+      "extension": ".bin",
+      "mime": "application/octet-stream",
+      "timesteps": 910,
+      "channels": 512
+    },
+    "advisoryOnly": true,
+    "toolsExecuted": false,
+    "networkModelDownloads": false
+  }
+}

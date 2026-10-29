@@ -1,0 +1,137 @@
+{
+  "requestId": "44b9f37b-4ed3-4927-81b6-32937ce5b625",
+  "capability": "decide",
+  "result": {
+    "decision": {
+      "model": "laya-rl-agent",
+      "answers": {
+        "discrepancy_severity": {
+          "answerConfidence": 0.403,
+          "confidence": 0.0778,
+          "action": {
+            "actProbability": 1
+          },
+          "type": "score",
+          "score": 1.2664,
+          "legend": {
+            "0": "None: everything reconciles.",
+            "1": "Trivial: rounding or a cosmetic difference.",
+            "2": "Moderate: a real difference worth confirming.",
+            "3": "Material: a large or unexplained difference."
+          },
+          "probabilities": {
+            "0": 0.403,
+            "1": 0.108,
+            "2": 0.3086,
+            "3": 0.1804
+          }
+        },
+        "disposition": {
+          "answerConfidence": 0.3851,
+          "confidence": 0.0568,
+          "action": {
+            "actProbability": 1
+          },
+          "type": "choice",
+          "choice": "approve: Matches the order and delivery; approve for payment.",
+          "probabilities": {
+            "approve: Matches the order and delivery; approve for payment.": 0.3851,
+            "hold: Something needs confirming before payment; hold pending clarification.": 0.2339,
+            "manual_review: A human in finance must review the discrepancy.": 0.2669,
+            "reject: Should not be paid: duplicate, unauthorised or materially wrong.": 0.1141
+          }
+        },
+        "duplicate": {
+          "answerConfidence": 0.8474,
+          "confidence": 0.8474,
+          "action": {
+            "actProbability": 1
+          },
+          "type": "noul",
+          "noul": 0.1526
+        },
+        "matches_order": {
+          "answerConfidence": 0.5103,
+          "confidence": 0.5103,
+          "action": {
+            "actProbability": 1
+          },
+          "type": "noul",
+          "noul": 0.5103
+        },
+        "urgency": {
+          "answerConfidence": 0.4837,
+          "confidence": 0.1998,
+          "action": {
+            "actProbability": 1
+          },
+          "type": "score",
+          "score": 2.0964,
+          "legend": {
+            "0": "No time pressure; can wait indefinitely.",
+            "1": "Routine; handle within the normal queue.",
+            "2": "Elevated; should be handled within the same week.",
+            "3": "Critical; requires action within the same day."
+          },
+          "probabilities": {
+            "0": 0.0239,
+            "1": 0.1741,
+            "2": 0.4837,
+            "3": 0.3183
+          }
+        }
+      },
+      "usage": {
+        "inputTokens": 1724,
+        "outputTokens": 0,
+        "stateTokens": 287,
+        "stateTokensDropped": 0,
+        "truncated": false,
+        "truncatedQuestions": []
+      }
+    },
+    "advisory": true,
+    "actionsExecuted": false
+  },
+  "provenance": {
+    "provider": "qvac-local",
+    "sdkContract": "@qvac/sdk@0.22.0",
+    "requestId": "44b9f37b-4ed3-4927-81b6-32937ce5b625",
+    "capability": "decide",
+    "startedAt": "2026-10-29T14:36:21.141Z",
+    "completedAt": "2026-10-29T14:36:32.417Z",
+    "elapsedMs": 11276,
+    "steps": [
+      {
+        "capability": "decide",
+        "modelType": "llamacpp-decision",
+        "requestIds": [
+          "7463e6e4-c869-4f65-97a0-a759af1aebbe",
+          "adb9fb67-ae21-4221-b10e-4d0e674630c7"
+        ],
+        "artifacts": [
+          {
+            "name": "laya-typed-decisions-Q8_0.gguf",
+            "bytes": 449919104,
+            "modifiedAt": "2026-10-29T14:34:41.460Z"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "textSha256": "d65790244bf3533efdaced685997ac90bce2db496fd9094182d6e224de351ffd",
+      "characters": 705
+    },
+    "questionsSha256": "ba03c2b4b1a365618d9ffbaeb79335a8be229dcec299611fbef7ff10b6b2960c",
+    "questionIds": [
+      "discrepancy_severity",
+      "disposition",
+      "duplicate",
+      "matches_order",
+      "urgency"
+    ],
+    "advisoryOnly": true,
+    "toolsExecuted": false,
+    "networkModelDownloads": false
+  }
+}

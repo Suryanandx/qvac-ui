@@ -1,0 +1,322 @@
+{
+  "requestId": "100ae35d-232c-435e-a6d8-c906e8d999e1",
+  "capability": "ocr",
+  "result": {
+    "text": "SYNTHETIC TEST FIXTURE\nNOT A REAL INVOICE\nInvoice: INV-2026-1042\nINVOICE\nIssued: September\n30,\n2026\nDue: October 30, 2026\nNorthstar Analytics\nSample business documentation\nBill to: Sample Ridge Labs\nFictional test customer\nDESCRIPTION\nQUANTITY\nUNIT PRICE\nAMOUNT\nAnalytics seats\n8250.00\n$1,000.00\nSupport sessions\n$100.00\n8200.00\nSubtotal: $1,200.00\nTax (8%): $96.00\nTOTAL DUE: $1,296.00\nFor OCR and classification testing only. No payment information or bank account is\npresent",
+    "blocks": [
+      {
+        "text": "SYNTHETIC TEST FIXTURE",
+        "bbox": [
+          57,
+          99,
+          286,
+          115
+        ],
+        "confidence": 0.974468469619751
+      },
+      {
+        "text": "NOT A REAL INVOICE",
+        "bbox": [
+          312,
+          99,
+          491,
+          115
+        ],
+        "confidence": 0.8914155960083008
+      },
+      {
+        "text": "Invoice: INV-2026-1042",
+        "bbox": [
+          801,
+          141,
+          1021,
+          162
+        ],
+        "confidence": 0.5926684141159058
+      },
+      {
+        "text": "INVOICE",
+        "bbox": [
+          57,
+          145,
+          236,
+          188
+        ],
+        "confidence": 0.9994813799858093
+      },
+      {
+        "text": "Issued: September",
+        "bbox": [
+          799,
+          172,
+          980,
+          198
+        ],
+        "confidence": 0.9623362421989441
+      },
+      {
+        "text": "30,",
+        "bbox": [
+          978.0325927734375,
+          171.87452697753906,
+          1014.43896484375,
+          197.21487426757812
+        ],
+        "confidence": 0.9754903316497803
+      },
+      {
+        "text": "2026",
+        "bbox": [
+          1013,
+          173,
+          1062,
+          194
+        ],
+        "confidence": 0.8284271359443665
+      },
+      {
+        "text": "Due: October 30, 2026",
+        "bbox": [
+          802,
+          204,
+          1011,
+          228
+        ],
+        "confidence": 0.7485015392303467
+      },
+      {
+        "text": "Northstar Analytics",
+        "bbox": [
+          58,
+          215,
+          302,
+          247
+        ],
+        "confidence": 0.9977442026138306
+      },
+      {
+        "text": "Sample business documentation",
+        "bbox": [
+          58,
+          271,
+          352,
+          296
+        ],
+        "confidence": 0.9648154973983765
+      },
+      {
+        "text": "Bill to: Sample Ridge Labs",
+        "bbox": [
+          58,
+          342,
+          306,
+          369
+        ],
+        "confidence": 0.809203565120697
+      },
+      {
+        "text": "Fictional test customer",
+        "bbox": [
+          59,
+          376,
+          262,
+          397
+        ],
+        "confidence": 0.8537408113479614
+      },
+      {
+        "text": "DESCRIPTION",
+        "bbox": [
+          59,
+          461,
+          163,
+          478
+        ],
+        "confidence": 0.9999354481697083
+      },
+      {
+        "text": "QUANTITY",
+        "bbox": [
+          437,
+          461,
+          518,
+          478
+        ],
+        "confidence": 0.9999518394470215
+      },
+      {
+        "text": "UNIT PRICE",
+        "bbox": [
+          628,
+          461,
+          715,
+          478
+        ],
+        "confidence": 0.7319989800453186
+      },
+      {
+        "text": "AMOUNT",
+        "bbox": [
+          992,
+          461,
+          1061,
+          478
+        ],
+        "confidence": 0.9995862245559692
+      },
+      {
+        "text": "Analytics seats",
+        "bbox": [
+          57,
+          518,
+          195,
+          547
+        ],
+        "confidence": 0.9968843460083008
+      },
+      {
+        "text": "8250.00",
+        "bbox": [
+          626,
+          519,
+          704,
+          543
+        ],
+        "confidence": 0.6486555933952332
+      },
+      {
+        "text": "$1,000.00",
+        "bbox": [
+          968,
+          518,
+          1063,
+          545
+        ],
+        "confidence": 0.9880853891372681
+      },
+      {
+        "text": "Support sessions",
+        "bbox": [
+          57,
+          583,
+          215,
+          611
+        ],
+        "confidence": 0.9999890923500061
+      },
+      {
+        "text": "$100.00",
+        "bbox": [
+          626,
+          583,
+          704,
+          607
+        ],
+        "confidence": 0.7885885834693909
+      },
+      {
+        "text": "8200.00",
+        "bbox": [
+          984,
+          583,
+          1063,
+          607
+        ],
+        "confidence": 0.6050904393196106
+      },
+      {
+        "text": "Subtotal: $1,200.00",
+        "bbox": [
+          884,
+          675,
+          1063,
+          702
+        ],
+        "confidence": 0.7848746180534363
+      },
+      {
+        "text": "Tax (8%): $96.00",
+        "bbox": [
+          906,
+          716,
+          1063,
+          742
+        ],
+        "confidence": 0.9626162648200989
+      },
+      {
+        "text": "TOTAL DUE: $1,296.00",
+        "bbox": [
+          735,
+          759,
+          1064,
+          797
+        ],
+        "confidence": 0.991155743598938
+      },
+      {
+        "text": "For OCR and classification testing only. No payment information or bank account is",
+        "bbox": [
+          58,
+          880,
+          650,
+          905
+        ],
+        "confidence": 0.7903217077255249
+      },
+      {
+        "text": "present",
+        "bbox": [
+          649,
+          883,
+          709,
+          902
+        ],
+        "confidence": 0.9999980330467224
+      }
+    ]
+  },
+  "provenance": {
+    "provider": "qvac-local",
+    "sdkContract": "@qvac/sdk@0.22.0",
+    "requestId": "100ae35d-232c-435e-a6d8-c906e8d999e1",
+    "capability": "ocr",
+    "startedAt": "2026-10-29T14:38:05.247Z",
+    "completedAt": "2026-10-29T14:38:54.121Z",
+    "elapsedMs": 48873,
+    "steps": [
+      {
+        "capability": "ocr",
+        "modelType": "ggml-ocr",
+        "requestIds": [
+          "2692db59-91e2-4a65-8ac1-ce94428f7651"
+        ],
+        "artifacts": [
+          {
+            "name": "latin_g2.gguf",
+            "bytes": 15396512,
+            "modifiedAt": "2026-10-29T14:34:11.915Z"
+          },
+          {
+            "name": "craft_mlt_25k.gguf",
+            "bytes": 83133856,
+            "modifiedAt": "2026-10-29T14:34:20.892Z"
+          }
+        ],
+        "pipeline": "easyocr"
+      }
+    ],
+    "input": {
+      "name": "invoice.png",
+      "sha256": "ba5c8ee19f98ecfe58b7276566458bdb7004fddfea4e539730e092aa52beafa0",
+      "bytes": 84049,
+      "extension": ".png",
+      "mime": "image/png",
+      "width": 1120,
+      "height": 1050
+    },
+    "advisoryOnly": true,
+    "toolsExecuted": false,
+    "networkModelDownloads": false
+  }
+}
