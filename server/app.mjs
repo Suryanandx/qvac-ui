@@ -36,7 +36,7 @@ export async function createApp({ directory = join(root, '.local'), port = 0, mc
   const tools = new ToolRegistry({ store, directory, capabilities, attachments, mcp, models, connectors, skills, studio, offline: () => appSettings().offline });
   // New documents join the vault in the background once the embedding model is installed.
   // Only when QVAC is already running in this session; otherwise the first vault search indexes.
-  const indexVault = () => models.sdk && studio.cached('EMBEDDINGGEMMA_300M_Q8_0').then(ok => ok && studio.indexDocuments()).catch(e => store.log('vault.index-failed', { error: String(e.message).slice(0, 200) }));
+  const indexVault = () => models.sdk && !activeChat && studio.cached('EMBEDDINGGEMMA_300M_Q8_0').then(ok => ok && studio.indexDocuments()).catch(e => store.log('vault.index-failed', { error: String(e.message).slice(0, 200) }));
   const brain = new Brain({ store, models, tools, attachments, approvals });
   const token = randomBytes(32).toString('hex'); let origin, configuring = false, closing = false, activeChat = null;
   const pendingRequests = new Set();
@@ -89,11 +89,12 @@ export async function createApp({ directory = join(root, '.local'), port = 0, mc
   const downloadInfo = () => Object.fromEntries([...downloads].map(([id, { controller, ...job }]) => [id, job]));
 
   const state = () => {
-    const counts = store.count('message', 'conversationId');
+    const counts = store.count('message', 'conversationId'), all = store.list('message'), latest = {};
+    for (const m of all) latest[m.conversationId] ??= m.createdAt;
     return {
-      activeConversationId, busy: Boolean(activeChat),
-      conversations: store.list('conversation').map(c => ({ ...c, messageCount: counts[c.id] || 0 })),
-      messages: store.list('message').filter(m => m.conversationId === activeConversationId).slice(0, 100).reverse(),
+      activeConversationId, busy: Boolean(activeChat), samples: Object.keys(SAMPLES),
+      conversations: store.list('conversation').map(c => ({ ...c, messageCount: counts[c.id] || 0, updatedAt: latest[c.id] || c.createdAt })),
+      messages: all.filter(m => m.conversationId === activeConversationId).slice(0, 100).reverse(),
       attachments: attachments.list(activeConversationId).map(({ metadata, ...a }) => ({ ...a, seconds: metadata?.seconds ?? null })),
       agents: AGENTS.map(({ instruction, ...a }) => a), commands: Object.entries(COMMANDS).map(([name, c]) => ({ name, help: c.help })),
       flows: tools.flows(), tools: tools.definitions().map(({ name, description, source, server, connectorName, approval }) => ({ name, description, source, server: server || connectorName, approval })),
@@ -133,16 +134,19 @@ export async function createApp({ directory = join(root, '.local'), port = 0, mc
       if (req.method === 'GET' && url.pathname === '/api/audit') return json(res, { valid: store.verify(), events: store.audit() });
       if (req.method === 'GET' && url.pathname.startsWith('/api/audio/')) {
         const record = store.get('audio', url.pathname.split('/').pop());
-        res.writeHead(200, { 'Content-Type': 'audio/wav', 'Cache-Control': 'no-store' }); return res.end(await readFile(record.mediaId ? join(directory, 'media', record.mediaId + '.wav') : join(directory, 'audio', record.id + '.wav')));
+        const body = await readFile(record.mediaId ? join(directory, 'media', record.mediaId + '.wav') : join(directory, 'audio', record.id + '.wav'));
+        res.writeHead(200, { 'Content-Type': 'audio/wav', 'Cache-Control': 'no-store' }); return res.end(body);
       }
       if (req.method === 'GET' && url.pathname.startsWith('/api/media/')) {
         const record = store.get('media', url.pathname.split('/').pop());
-        res.writeHead(200, { 'Content-Type': record.ext === 'png' ? 'image/png' : 'audio/wav', 'Cache-Control': 'no-store' }); return res.end(await readFile(join(directory, 'media', `${record.id}.${record.ext}`)));
+        const body = await readFile(join(directory, 'media', `${record.id}.${record.ext}`));
+        res.writeHead(200, { 'Content-Type': record.ext === 'png' ? 'image/png' : 'audio/wav', 'Cache-Control': 'no-store' }); return res.end(body);
       }
       if (req.method === 'GET' && url.pathname.startsWith('/api/exports/')) {
         const record = store.get('export', url.pathname.split('/').pop());
+        const body = await readFile(join(directory, 'exports', `${record.id}.${record.format}`));
         res.writeHead(200, { 'Content-Type': { md: 'text/markdown', csv: 'text/csv', txt: 'text/plain' }[record.format] + '; charset=utf-8', 'Content-Disposition': `attachment; filename="${record.name.replace(/"/g, '')}"`, 'Cache-Control': 'no-store' });
-        return res.end(await readFile(join(directory, 'exports', `${record.id}.${record.format}`)));
+        return res.end(body);
       }
       if (req.method === 'GET' && url.pathname === '/api/vault') return json(res, studio.vaultInfo());
       if (req.method !== 'POST') return json(res, { error: 'Not found' }, 404);
@@ -233,7 +237,7 @@ export async function createApp({ directory = join(root, '.local'), port = 0, mc
       }
       if (url.pathname === '/api/flows') { const p = z.object({ action: z.literal('delete'), name: z.string().max(40) }).strict().parse(input); tools.deleteFlow(p.name); return json(res, { flows: tools.flows() }); }
       return json(res, { error: 'Unknown operation' }, 404);
-    } catch (e) { if (!res.headersSent) json(res, { error: e instanceof z.ZodError ? e.issues.map(i => i.message).join('; ') : e.message }, 400); else res.end(); }
+    } catch (e) { if (!res.headersSent) json(res, e.code === 'ENOENT' || e.message === 'Record not found' ? { error: 'Not found' } : { error: e instanceof z.ZodError ? e.issues.map(i => i.message).join('; ') : e.message }, e.code === 'ENOENT' || e.message === 'Record not found' ? 404 : 400); else res.end(); }
     finally { pendingRequests.delete(pending); finishRequest(); }
   });
   await new Promise(r => server.listen(port, '127.0.0.1', r)); origin = `http://127.0.0.1:${server.address().port}`;

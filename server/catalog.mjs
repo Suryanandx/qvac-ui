@@ -1,7 +1,6 @@
 // Curated models from the QVAC registry. Each entry names SDK registry
 // constants (pinned source + SHA-256), so downloads are reproducible and
 // verified by the SDK. Nothing downloads until the user asks.
-import { z } from 'zod';
 
 export const CATALOG = [
   { id: 'brain-vision', role: 'brain', label: 'Qwen3.5 4B · vision', recommended: true, license: 'Apache-2.0',
@@ -84,7 +83,6 @@ export async function entryPaths(sdk, entry) {
   return out;
 }
 
-export const catalogIdSchema = z.string().regex(/^[a-z0-9-]{2,40}$/);
 
 /** Resolve one asset (registry constant name or pinned URL) to an SDK model source plus metadata. */
 export function resolveAsset(sdk, asset) {

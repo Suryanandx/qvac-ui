@@ -40,7 +40,7 @@ export async function readSession(directory = defaultWorkspace()) {
     const response = await fetch(`${url.origin}/api/state`, { redirect: 'error', headers: { Authorization: `Bearer ${url.hash.slice(1)}` }, signal: AbortSignal.timeout(2000) });
     if (!response.ok || !response.headers.get('content-type')?.startsWith('application/json')) return null;
     const state = await response.json();
-    if (!state?.models || !Array.isArray(state.documents) || typeof state.auditValid !== 'boolean') return null;
+    if (!state?.model || !Array.isArray(state.conversations) || typeof state.activeConversationId !== 'string') return null;
     return record;
   } catch { return null; }
 }

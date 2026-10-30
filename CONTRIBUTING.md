@@ -22,7 +22,7 @@ Open the printed `http://127.0.0.1:4317/#…` link, then choose models in **Sett
 
 **A skill.** Add `skills/<name>/SKILL.md` in the [Agent Skills](https://agentskills.io) format: frontmatter with `name` (lowercase, dashes) and a one-sentence `description` that says when to use it, then numbered steps that name the tools to call. Keep it under about 300 words; small models follow short instructions better.
 
-**A connector.** Add an entry to `server/connectors/definitions.mjs`: credential `fields` (mark secrets with `secret: true`), a `test` call, and `tools` with zod schemas. Read tools return plain JSON (arrays of objects render as tables). Mark anything that creates, sends or changes data as `write: true`. Add a contract test with a fake fetch in `tests/connectors.test.mjs`.
+**A connector.** Add an entry to `server/connectors/definitions.mjs`: credential `fields` (mark secrets with `secret: true`; every field is required unless it has `optional: true`, and `placeholder` is only an example), a `test` call, and `tools` with zod schemas. Read tools return plain JSON (arrays of objects render as tables). Mark anything that creates, sends or changes data as `write: true`. Add a contract test with a fake fetch in `tests/connectors.test.mjs`.
 
 **A model.** Add a catalog entry in `server/catalog.mjs` that references a QVAC SDK registry constant (preferred, since it is pinned and checksum-verified) or a pinned Hugging Face URL with its SHA-256.
 

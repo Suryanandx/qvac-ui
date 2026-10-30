@@ -8,7 +8,8 @@ export default function Settings({ api, state, refresh, onClose, initialTab = 'm
   const run = async fn => { setSaving(true); setError(''); try { await fn(); await refresh(); } catch (e) { setError(e.message); } finally { setSaving(false); } };
   const tabs = [['models', 'Models', Cpu], ['connectors', 'Connectors', PlugZap], ['skills', 'Skills', BookOpen], ['vault', 'Vault', Database], ['capabilities', 'Capabilities', Waves], ['mcp', 'MCP', Plug], ['flows', 'Flows', Workflow], ['privacy', 'Privacy', ShieldCheck], ['activity', 'Activity', Activity]];
   const props = { api, state, run, saving, refresh };
-  return <div className="sheet-backdrop" onClick={onClose}><aside className="sheet" onClick={e => e.stopPropagation()} aria-label="Settings">
+  useEffect(() => { const close = e => e.key === 'Escape' && onClose(); window.addEventListener('keydown', close); return () => window.removeEventListener('keydown', close); }, [onClose]);
+  return <div className="sheet-backdrop" onClick={onClose}><aside className="sheet" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()} aria-label="Settings">
     <header><h2>Settings</h2><button className="icon-button" aria-label="Close settings" onClick={onClose}><X size={18} /></button></header>
     <nav className="sheet-tabs">{tabs.map(([id, label, Icon]) => <button key={id} className={tab === id ? 'active' : ''} onClick={() => { setTab(id); setError(''); }}><Icon size={14} />{label}</button>)}</nav>
     {error && <p className="composer-error">{error}</p>}
@@ -107,13 +108,13 @@ function Skills({ api, state, run, saving }) {
     <div className="row-actions"><div className="search-field grow"><Search size={14} /><input placeholder={`Search ${state.skills.length} skills`} value={query} onChange={e => setQuery(e.target.value)} /></div><button className="secondary" onClick={() => { setAdding(!adding); setSource(source || template); }}><Plus size={14} /> New or import</button></div>
     {adding && <div className="form">
       <label>SKILL.md<textarea rows={10} value={source} onChange={e => setSource(e.target.value)} spellCheck={false} /></label>
-      <div className="row-actions"><label className="secondary small file-pick">Load file<input type="file" hidden accept=".md,text/markdown" onChange={async e => { const f = e.target.files[0]; if (f) setSource(await f.text()); }} /></label>
+      <div className="row-actions"><label className="secondary small file-pick" tabIndex={0} role="button" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.currentTarget.querySelector('input').click(); } }}>Load file<input type="file" hidden accept=".md,text/markdown" onChange={async e => { const f = e.target.files[0]; if (f) setSource(await f.text()); }} /></label>
         <button className="primary" disabled={saving} onClick={() => run(async () => { await api('skills', { action: 'save', source }); setAdding(false); setSource(''); })}>Save skill</button></div>
     </div>}
     {shown.map(s => <div key={s.name} className="settings-row column">
       <div className="row-top"><div><b>{s.name}</b><small>{s.description}</small><small className="meta">{s.source === 'user' ? 'Your skill' : 'Built-in'} · {s.words} words</small></div>
         <label className="check"><input type="checkbox" checked={s.enabled} onChange={e => run(() => api('skills', { action: e.target.checked ? 'enable' : 'disable', name: s.name }))} /> On</label>
-        <button className="link" onClick={async () => setView(view?.name === s.name ? null : await api('skills', { action: 'read', name: s.name }))}>{view?.name === s.name ? 'Hide' : 'View'}</button>
+        <button className="link" onClick={() => view?.name === s.name ? setView(null) : run(async () => setView(await api('skills', { action: 'read', name: s.name })))}>{view?.name === s.name ? 'Hide' : 'View'}</button>
         {s.source === 'user' && <button className="icon-button" aria-label={`Delete ${s.name}`} onClick={() => run(() => api('skills', { action: 'delete', name: s.name }))}><Trash2 size={15} /></button>}</div>
       {view?.name === s.name && <pre className="skill-body">{view.body}</pre>}
     </div>)}

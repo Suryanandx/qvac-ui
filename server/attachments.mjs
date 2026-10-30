@@ -53,7 +53,7 @@ export class Attachments {
     const conversation = this.store.get('conversation', request.conversationId);
     if (conversation.archived) throw new Error('Restore this chat before attaching files');
     const name = basename(request.name), extension = extname(name).toLowerCase(), kind = kindByExtension[extension];
-    if (!kind) throw new Error('Attach audio (WAV, MP3, M4A), images (PNG, JPEG), PDF or Word documents, CSV/TXT/MD/JSON text, or BCI .bin recordings');
+    if (!kind) throw new Error('Attach audio (WAV), images (PNG, JPEG), PDF or Word documents, CSV/TXT/MD/JSON text, or BCI .bin recordings');
     const ref = `file-${this.list(request.conversationId).length + 1}`;
     if (kind === 'document') {
       const bytes = Buffer.from(request.base64, 'base64');

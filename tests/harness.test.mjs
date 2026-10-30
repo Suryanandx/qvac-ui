@@ -243,3 +243,13 @@ test('consumer tools batched with a data-reading tool wait for its result instea
   assert.match(spoken[0].display, /Ship the beta Friday/);
   assert.deepEqual(calls, ['transcribe', 'tts']);
 });
+
+test('a second launcher finds the running server instead of starting another', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'qvac-session-'));
+  const { startSession, readSession } = await import('../server/session.mjs');
+  const service = await startSession({ createApp, directory, port: 0 });
+  t.after(async () => { await service.close(); await rm(directory, { recursive: true, force: true }); });
+  const found = await readSession(directory);
+  assert.ok(found, 'readSession recognises the live server');
+  assert.equal(found.url, service.url);
+});

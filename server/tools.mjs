@@ -128,7 +128,7 @@ export class ToolRegistry {
           const att = attachments.resolve(ctx.conversationId, file, ['audio']);
           const { result } = await this.capability('transcribe', { upload: await attachments.upload(att) }, ctx.signal);
           const text = result.text.replace(/\[(?:blank_audio|silence|music|noise|inaudible)\]/gi, '').trim();
-          const doc = text ? importDocument(this.store, { name: `${att.name}.transcript.txt`, content: text }) : null;
+          const doc = text ? importDocument(this.store, { name: `${att.name.slice(0, 120)}.transcript.txt`, content: text }) : null;
           ctx.outputs.push({ kind: 'text', text, documentId: doc?.id });
           return { content: text ? `Transcript of ${att.ref} (${att.name}):\n${text}` : `No speech recognized in ${att.ref}.`,
             display: card(`Transcript · ${att.name}`, text ? [block.transcript(result.segments.map(s => ({ start: s.startMs / 1000, end: s.endMs / 1000, text: s.text.trim() })))] : [block.notice('warning', 'No speech recognized')], `Whisper · ${att.metadata.seconds.toFixed(1)} s audio`) };
@@ -140,7 +140,7 @@ export class ToolRegistry {
           const att = attachments.resolve(ctx.conversationId, file, ['image']);
           const { result } = await this.capability('ocr', { upload: await attachments.upload(att) }, ctx.signal);
           const text = result.text.trim();
-          const doc = text ? importDocument(this.store, { name: `${att.name}.ocr.txt`, content: text }) : null;
+          const doc = text ? importDocument(this.store, { name: `${att.name.slice(0, 120)}.ocr.txt`, content: text }) : null;
           ctx.outputs.push({ kind: 'text', text, documentId: doc?.id });
           return { content: text ? `OCR text of ${att.ref} (${att.name}); small glyphs such as $ may be misread:\n${text}` : `No text found in ${att.ref}.`,
             display: card(`Text in ${att.name}`, text ? [block.code(text), block.notice('info', 'OCR can misread small symbols and digits. Check figures before relying on them.')] : [block.notice('warning', 'No text found')], `OCR · ${result.blocks.length} text regions`) };
@@ -154,7 +154,7 @@ export class ToolRegistry {
           const r = await this.studio.meeting(att, attachments.path(att), ctx.signal, step => ctx.emit?.({ event: 'progress', data: { tool: 'meeting_notes', step } }));
           const n = r.notes, md = [`# Meeting notes · ${att.name}`, '', '## Summary', n.summary, '', '## Decisions', ...(n.decisions.length ? n.decisions.map(d => `- ${d}`) : ['- None recorded']), '', '## Action items', '| Owner | Task | Due |', '|---|---|---|', ...n.actionItems.map(a => `| ${a.owner} | ${a.task} | ${a.due} |`), '', '## Open questions', ...(n.openQuestions.length ? n.openQuestions.map(q => `- ${q}`) : ['- None']), '', '## Transcript', ...r.lines.map(l => `- ${l.speaker ? `**${l.speaker}** ` : ''}[${Math.floor(l.start / 60)}:${String(Math.floor(l.start % 60)).padStart(2, '0')}] ${l.text}`)].join('\n');
           const saved = await this.studio.saveExport(`Meeting notes ${att.name.replace(/\.[^.]+$/, '')}`, 'md', md);
-          const doc = importDocument(this.store, { name: `${att.name}.transcript.txt`, content: r.transcript });
+          const doc = importDocument(this.store, { name: `${att.name.slice(0, 120)}.transcript.txt`, content: r.transcript });
           ctx.outputs.push({ kind: 'text', text: r.transcript, documentId: doc.id });
           return { content: `Meeting notes for ${att.ref} (${att.name}), ${r.speakers || 'unknown number of'} speakers, ${Math.round(r.seconds)} s:\n${JSON.stringify(n)}\n\nTranscript:\n${r.transcript}`,
             display: card(`Meeting notes · ${att.name}`, [block.text(n.summary), block.metrics([['Length', `${Math.floor(r.seconds / 60)}m ${Math.round(r.seconds % 60)}s`], ['Speakers', r.speakers || '—'], ['Decisions', n.decisions.length], ['Action items', n.actionItems.length]]),

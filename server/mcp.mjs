@@ -69,13 +69,17 @@ export class McpHub {
     await this.disconnect(server.id);
     const entry = { status: 'connecting', tools: [], error: null };
     this.connections.set(server.id, entry);
+    let client;
     try {
-      const client = new Client({ name: 'qvac-ui', version: '0.2.0' });
+      client = new Client({ name: 'qvac-ui', version: '0.2.0' });
       await client.connect(this.createTransport(server), { timeout: 20000 });
       const { tools } = await client.listTools(undefined, { timeout: 20000 });
+      // A newer connect() or a disconnect() replaced this entry meanwhile: close this client instead of leaking it.
+      if (this.connections.get(server.id) !== entry) { await client.close().catch(() => {}); return; }
       Object.assign(entry, { client, status: 'connected', tools: tools.slice(0, MAX_MCP_TOOLS) });
       this.store.log('mcp.connected', { id: server.id, name: server.name, tools: entry.tools.map(t => t.name) });
     } catch (e) {
+      await client?.close().catch(() => {});
       Object.assign(entry, { status: 'error', error: String(e.message || e).slice(0, 300) });
       this.store.log('mcp.failed', { id: server.id, name: server.name, error: entry.error });
     }

@@ -10,6 +10,19 @@ const autoplay = new Set();
 export function configureMedia(loader) { loadBlob = loader; }
 export function markAutoplay(ref) { autoplay.add(ref); }
 
+// Autoplayed replies play outside React, so they keep going when the live turn is swapped for the saved message.
+let current = null;
+const audioEnded = () => window.dispatchEvent(new Event('qvac-audio-ended'));
+export function stopAudio() { if (current) { current.pause(); current.onended(); } }
+async function playNow(ref) {
+  stopAudio();
+  try {
+    const url = URL.createObjectURL(await loadAudio(ref)), el = new Audio(url);
+    el.onended = el.onerror = () => { el.onended = el.onerror = null; URL.revokeObjectURL(url); if (current === el) current = null; audioEnded(); };
+    current = el; await el.play();
+  } catch { if (current) current.onended(); else audioEnded(); }
+}
+
 const fmt = s => s === null || s === undefined ? '' : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const toneIcon = { info: Info, success: CircleCheck, warning: AlertTriangle, error: OctagonAlert };
 const stepIcon = { pending: Circle, running: Loader2, done: Check, failed: X, skipped: Minus };
@@ -18,10 +31,10 @@ function AudioClip({ props }) {
   const [url, setUrl] = useState(null), [error, setError] = useState(''), ref = useRef(null);
   useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
   const open = async () => { try { setUrl(URL.createObjectURL(await loadAudio(props.ref))); } catch (e) { setError(e.message); } };
-  useEffect(() => { if (autoplay.delete(props.ref)) open(); }, [props.ref]);
-  useEffect(() => { if (url) ref.current?.play().catch(() => {}); }, [url]);
+  useEffect(() => { if (autoplay.delete(props.ref)) playNow(props.ref); }, [props.ref]);
+  useEffect(() => { if (url) { stopAudio(); ref.current?.play().catch(() => {}); } }, [url]);
   if (error) return <p className="ui-muted">{error}</p>;
-  return url ? <audio ref={ref} className="ui-audio" controls src={url} onEnded={() => window.dispatchEvent(new Event('qvac-audio-ended'))} /> : <button className="ui-play" onClick={open}><Play size={14} /> Play {props.seconds.toFixed(1)} s</button>;
+  return url ? <audio ref={ref} className="ui-audio" controls src={url} /> : <button className="ui-play" onClick={open}><Play size={14} /> Play {props.seconds.toFixed(1)} s</button>;
 }
 
 function ImageView({ props }) {
@@ -30,9 +43,9 @@ function ImageView({ props }) {
   return error ? <p className="ui-muted">{error}</p> : url ? <img className="ui-image" src={url} alt={props.alt} /> : <div className="ui-image placeholder"><Loader2 size={16} className="spin" /></div>;
 }
 function DownloadLink({ props }) {
-  const [busy, setBusy] = useState(false);
-  const save = async () => { setBusy(true); try { const url = URL.createObjectURL(await loadBlob('exports', props.ref)); const a = Object.assign(document.createElement('a'), { href: url, download: props.name }); a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); } finally { setBusy(false); } };
-  return <button className="ui-download" onClick={save} disabled={busy}><DownloadIcon size={14} /> {props.name}</button>;
+  const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  const save = async () => { setBusy(true); setError(''); try { const url = URL.createObjectURL(await loadBlob('exports', props.ref)); const a = Object.assign(document.createElement('a'), { href: url, download: props.name }); a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); } catch (e) { setError(e.message); } finally { setBusy(false); } };
+  return <><button className="ui-download" onClick={save} disabled={busy}><DownloadIcon size={14} /> {props.name}</button>{error && <p className="ui-muted">{error}</p>}</>;
 }
 
 const render = {

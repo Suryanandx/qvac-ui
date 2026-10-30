@@ -49,6 +49,5 @@ Stopping a message aborts the chat turn and the running tool. Transcription, BCI
 - `verification/native-harness.json`: end-to-end scenarios on real models (`npm run test:native-harness`).
 - `verification/native-generation.json`: image and music generation, two runs each (`node scripts/test-generation.mjs`, which downloads the weights to a temporary cache and deletes them afterwards).
 - `verification/native-stt.json`, `native-ocr-invoice.json`, `native-both-smoke.json`, `native-cancellation.json`, `decision-sample.json`: earlier per-capability native checks (speech-to-text, OCR, TTS and decisions, cancellation).
-- `verification/native-voice.json` and `voice-response.wav`: the earlier voice pipeline's run, kept for reference.
 
 These show that pipelines run correctly on the development machine (macOS, Apple Silicon). They are not accuracy benchmarks.

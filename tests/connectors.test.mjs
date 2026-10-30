@@ -161,3 +161,13 @@ test('naming a connected service puts its tools straight into the prompt', async
   assert.equal(tools.wikipedia_summary, false); assert.equal(tools.wikipedia_search, false);
   assert.equal(tools.weather_forecast, true, 'unrelated connectors stay deferred');
 });
+
+test('fields with an example value are still required unless marked optional, and mail subjects stay one line', async t => {
+  const { post } = await harness(t);
+  for (const [id, values] of [['postgres', {}], ['jira', { email: 'a@b.co', token: 'x' }], ['shopify', { token: 'x' }]])
+    assert.equal((await post('/api/connectors', { action: 'save', id, values })).status, 400, `${id} needs its address`);
+  assert.equal((await post('/api/connectors', { action: 'save', id: 'gitlab', values: { token: 'x' } })).status, 200, 'GitLab host defaults to gitlab.com');
+  const draft = CONNECTORS.find(d => d.id === 'google').tools.find(x => x.name === 'gmail_create_draft');
+  assert.equal(draft.schema.safeParse({ to: 'a@b.co', subject: 'Hi\r\nBcc: x@evil.test', body: 'Hello' }).success, false);
+  assert.equal(draft.schema.safeParse({ to: 'a@b.co', subject: 'Hi', body: 'Hello' }).success, true);
+});

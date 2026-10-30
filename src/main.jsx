@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ArrowUp, AudioLines, BookOpen, Brain, Check, ChevronDown, CircleAlert, Cpu, Database, FileAudio, FileImage, FileText, Globe, Headphones, Image as ImageIcon, Languages, LayoutPanelTop, ListChecks, Loader2, Mic, Music, PanelLeftClose, PanelLeftOpen, Plug, PlugZap, Plus, Paperclip, Receipt, ScanText, Scale, Search, Settings2, ShieldCheck, Sparkles, Square, Table2, Tags, Volume2, VolumeX, WifiOff, Workflow, Wrench, X, Save, Eye, Users } from 'lucide-react';
 import ChatManager from './ChatManager.jsx';
 import Settings from './settings.jsx';
-import { OpenUICard, configureMedia, markAutoplay } from './openui.jsx';
+import { OpenUICard, configureMedia, markAutoplay, stopAudio } from './openui.jsx';
 import { fileUpload, toWav, wavFile } from './audio.js';
 import './style.css';
 
@@ -46,7 +46,7 @@ const WORKSPACES = [
 
 /** Minimal, safe Markdown: paragraphs, bullets, numbered lists, headings, tables, code and bold. React elements only. */
 function Markdown({ text }) {
-  const inline = s => s.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((t, i) => t.startsWith('**') && t.endsWith('**') ? <b key={i}>{t.slice(2, -2)}</b> : t.startsWith('`') && t.endsWith('`') && t.length > 1 ? <code key={i}>{t.slice(1, -1)}</code> : t);
+  const inline = s => s.split(/(\*\*[^*]+\*\*|\*[^*\s](?:[^*]*[^*\s])?\*|`[^`]+`)/g).map((t, i) => t.startsWith('**') && t.endsWith('**') ? <b key={i}>{t.slice(2, -2)}</b> : t.length > 2 && t.startsWith('*') && t.endsWith('*') ? <i key={i}>{t.slice(1, -1)}</i> : t.startsWith('`') && t.endsWith('`') && t.length > 1 ? <code key={i}>{t.slice(1, -1)}</code> : t);
   const blocks = []; let list = null;
   const lines = text.replace(/\r/g, '').split('\n');
   for (let i = 0; i < lines.length; i++) {
@@ -147,16 +147,21 @@ function Composer({ state, busy, onSend, onStop, onAttach, onSample, error, agen
   const commands = text.startsWith('/') && !text.includes(' ') ? state.commands.filter(c => c.name.startsWith(text)) : [];
   const ttsReady = state.capabilities.find(c => c.id === 'tts')?.configured;
   const submit = () => { if (!text.trim() || busy) return; onSend({ text: text.trim(), agent, speak: speak && ttsReady }); setText(''); };
+  const handsFreeOn = useRef(handsFree); handsFreeOn.current = handsFree;
+  useEffect(() => { if (!menu) return; const close = e => e.key === 'Escape' && setMenu(false); window.addEventListener('keydown', close); return () => window.removeEventListener('keydown', close); }, [menu]);
   const sendRecording = async ({ timeout } = {}) => {
     const file = await recorder.stop();
-    if (timeout || !file) { if (handsFree) setHandsFree(false); return; }
-    const attachment = await onAttach(file);
-    onSend({ text: '', voiceAttachmentId: attachment.id, agent, speak: (speak || handsFree) && ttsReady });
+    if (!handsFreeOn.current) return;
+    if (timeout || !file) { setMicError('No speech heard, so the hands-free conversation ended.'); setHandsFree(false); return; }
+    try { const attachment = await onAttach(file); onSend({ text: '', voiceAttachmentId: attachment.id, agent, speak: ttsReady }); }
+    catch (e) { setMicError(e.message); setHandsFree(false); }
   };
   // Hands-free: listen whenever idle; a pause sends the turn; the spoken reply finishing starts listening again.
   useEffect(() => {
-    if (!handsFree) { if (recorder.recording) recorder.stop(); return; }
-    if (!busy && !recorder.recording) recorder.start({ onSilence: sendRecording }).catch(e => { setMicError(e.message); setHandsFree(false); });
+    if (!handsFree) { stopAudio(); if (recorder.recording) recorder.stop(); return; }
+    setMicError('');
+    // The microphone opens asynchronously; if hands-free ended meanwhile, close it again.
+    if (!busy && !recorder.recording) recorder.start({ onSilence: sendRecording }).then(() => { if (!handsFreeOn.current) recorder.stop(); }, e => { setMicError(e.message); setHandsFree(false); });
   }, [handsFree, busy]);
   async function toggleMic() {
     setMicError('');
@@ -173,10 +178,10 @@ function Composer({ state, busy, onSend, onStop, onAttach, onSample, error, agen
   return <div className="composer-wrap"
     onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); [...e.dataTransfer.files].forEach(attachFile); }}>
     {commands.length > 0 && <div className="command-menu">{commands.map(c => <button key={c.name} onClick={() => { setText(c.name + ' '); textarea.current?.focus(); }}><code>{c.name}</code><span>{c.help}</span></button>)}</div>}
-    {menu && <div className="attach-menu" onMouseLeave={() => setMenu(false)}>
+    {menu && <div className="attach-menu" onMouseLeave={() => setMenu(false)} onBlur={e => !e.currentTarget.contains(e.relatedTarget) && setMenu(false)}>
       <button onClick={() => { setMenu(false); fileInput.current.click(); }}><Paperclip size={14} /> Upload files<small>Audio · images · PDF · Word · CSV · text · BCI .bin. Or drop files here.</small></button>
       <div className="menu-label">Sample files</div>
-      {['team-meeting.wav', 'remote-work-policy.pdf', 'vendor-onboarding.docx', 'meeting-recording.wav', 'voice-question.wav', 'invoice.png', 'business-sales.csv', 'meeting-notes.md', 'competitor-notes.md', 'neural_sample_2.bin'].map(name => <button key={name} onClick={async () => { setMenu(false); await onSample(name); textarea.current?.focus(); }}>{name}</button>)}
+      {state.samples.map(name => <button key={name} onClick={async () => { setMenu(false); await onSample(name); textarea.current?.focus(); }}>{name}</button>)}
     </div>}
     {handsFree && <div className="handsfree-bar"><span className="pulse-dot" style={{ transform: `scale(${1 + recorder.level * 1.5})` }} />{busy ? 'Answering…' : recorder.recording ? 'Listening. Pause to send.' : 'Starting microphone…'}<button className="link" onClick={() => setHandsFree(false)}>End conversation</button></div>}
     <div className="composer">
@@ -185,7 +190,7 @@ function Composer({ state, busy, onSend, onStop, onAttach, onSample, error, agen
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }} disabled={recorder.recording && !handsFree} aria-label="Message" />
       <div className="composer-bar">
         <div>
-          <button className="icon-button" title="Attach" aria-label="Attach" onClick={() => setMenu(!menu)} disabled={busy}><Plus size={17} /></button>
+          <button className="icon-button" title="Attach" aria-label="Attach" aria-expanded={menu} onClick={() => setMenu(!menu)} disabled={busy}><Plus size={17} /></button>
           <input ref={fileInput} type="file" hidden multiple accept=".wav,.mp3,.m4a,.aac,.ogg,.opus,.webm,.flac,.png,.jpg,.jpeg,.pdf,.docx,.bin,.csv,.txt,.md,.json" onChange={async e => { const files = [...e.target.files]; e.target.value = ''; for (const f of files) await attachFile(f); }} />
           <button className={`icon-button ${recorder.recording && !handsFree ? 'recording' : ''}`} title={recorder.recording ? 'Stop and send' : 'Voice message'} aria-label="Voice message" onClick={toggleMic} disabled={handsFree || (busy && !recorder.recording)}><Mic size={17} /></button>
           <button className={`icon-button ${handsFree ? 'on' : ''}`} title="Hands-free conversation" aria-label="Hands-free conversation" onClick={() => setHandsFree(!handsFree)} disabled={!ttsReady}><Headphones size={17} /></button>
@@ -204,7 +209,9 @@ function App() {
   const [state, setState] = useState(null), [live, setLive] = useState(null), [error, setError] = useState(''), [settings, setSettings] = useState(null);
   const [history, setHistory] = useState(innerWidth > 900 && stored('qvac-history', true)), scroller = useRef(null);
   const [agent, setAgent] = useState(stored('qvac-agent', 'assistant')), [speak, setSpeak] = useState(stored('qvac-speak', false)), [handsFree, setHandsFree] = useState(false);
-  const refresh = async () => { const s = await api('state'); setState(s); return s; };
+  // Async work (uploads, streams, the hands-free recorder) reads these refs, not values captured by an older render.
+  const active = useRef(null), handsFreeOn = useRef(false); handsFreeOn.current = handsFree;
+  const refresh = async () => { const s = await api('state'); active.current = s.activeConversationId; setState(s); return s; };
   useEffect(() => { refresh().catch(e => setError(e.message)); }, []);
   useEffect(() => remember('qvac-history', history), [history]);
   useEffect(() => remember('qvac-agent', agent), [agent]);
@@ -213,10 +220,10 @@ function App() {
 
   async function attach(file) {
     setError('');
-    try { const record = await api('attachments', { conversationId: state.activeConversationId, ...(await fileUpload(file)) }); await refresh(); return record; }
+    try { const record = await api('attachments', { conversationId: active.current, ...(await fileUpload(file)) }); await refresh(); return record; }
     catch (e) { setError(e.message); throw e; }
   }
-  async function sample(name) { setError(''); try { const r = await api('samples', { name, conversationId: state.activeConversationId }); await refresh(); return r; } catch (e) { setError(e.message); throw e; } }
+  async function sample(name) { setError(''); try { const r = await api('samples', { name, conversationId: active.current }); await refresh(); return r; } catch (e) { setError(e.message); throw e; } }
 
   async function send(request) {
     setError('');
@@ -225,7 +232,7 @@ function App() {
     setLive(turn);
     let spokeReply = false;
     try {
-      const res = await fetch('/api/chat', { method: 'POST', headers: headers(), body: JSON.stringify({ ...request, conversationId: state.activeConversationId }) });
+      const res = await fetch('/api/chat', { method: 'POST', headers: headers(), body: JSON.stringify({ ...request, conversationId: active.current }) });
       if (!res.ok) throw new Error((await res.json()).error);
       const reader = res.body.getReader(), decoder = new TextDecoder(); let buffer = '';
       while (true) {
@@ -253,11 +260,15 @@ function App() {
     finally {
       await refresh().catch(() => {});
       // In hands-free mode, keep "busy" until the spoken reply finishes so the mic does not hear it.
-      if (spokeReply && handsFree) await new Promise(r => { const done = () => { window.removeEventListener('qvac-audio-ended', done); r(); }; window.addEventListener('qvac-audio-ended', done); setTimeout(done, 60000); });
+      if (spokeReply && handsFreeOn.current) await new Promise(r => {
+        const done = () => { window.removeEventListener('qvac-audio-ended', done); clearInterval(check); r(); };
+        const check = setInterval(() => { if (!handsFreeOn.current) done(); }, 250);
+        window.addEventListener('qvac-audio-ended', done); setTimeout(done, 60000);
+      });
       setLive(null);
     }
   }
-  async function stop() { await api('cancel', {}).catch(() => {}); }
+  async function stop() { stopAudio(); await api('cancel', {}).catch(() => {}); }
   async function decide(part, decision) { try { await api('approvals', { id: part.id, decision, digest: part.digest }); } catch (e) { setError(e.message); } }
   async function openWorkspace(w) {
     try {
@@ -278,7 +289,7 @@ function App() {
   const localTools = state.tools.filter(t => t.source === 'local').length;
   const empty = !state.messages.length && !live;
   return <div className={`shell ${history ? 'with-history' : ''}`}>
-    {history && <div className="history"><ChatManager conversations={state.conversations} activeConversationId={state.activeConversationId} api={api} refresh={refresh} onSelect={() => innerWidth < 900 && setHistory(false)} onCollapse={() => setHistory(false)} disabled={busy} /></div>}
+    {history && <div className="history"><ChatManager conversations={state.conversations} activeConversationId={state.activeConversationId} api={api} refresh={refresh} onSelect={() => innerWidth < 900 && setHistory(false)} onCollapse={() => setHistory(false)} disabled={busy || handsFree} /></div>}
     {history && innerWidth < 900 && <button className="history-scrim" aria-label="Close chats" onClick={() => setHistory(false)} />}
     <main>
       <header className="topbar">

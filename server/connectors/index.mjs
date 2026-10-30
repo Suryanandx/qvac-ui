@@ -60,7 +60,7 @@ export class Connectors {
       if (typeof value !== 'string' || value.length > 4000) throw new Error(`${field.label} is invalid`);
       if (field.secret) secret[field.key] = value.trim(); else fields[field.key] = value.trim();
     }
-    const missing = def.fields.filter(f => !f.placeholder && !fields[f.key] && !secret[f.key] && !(def.oauth && f.key === 'tenant'));
+    const missing = def.fields.filter(f => !f.optional && !fields[f.key] && !secret[f.key]);
     if (enabled && missing.length) throw new Error(`Missing: ${missing.map(f => f.label).join(', ')}`);
     this.cache.delete(id);
     this.store.put('connector', { ...rec, connectorId: id, enabled, fields, secretKeys: Object.keys(secret), sealed: await this.secrets.seal(secret) });
@@ -73,15 +73,15 @@ export class Connectors {
     this.cache.set(id, values); return values;
   }
   async client(def, signal) {
-    const values = await this.values(def.id);
+    let values = await this.values(def.id);
     const client = {
       opts: { signal, fetchImpl: this.fetchImpl },
-      get: key => { const v = values[key]; if (!v && def.fields.find(f => f.key === key && !f.placeholder)) throw new ConnectorError(`${def.name} is missing ${key}`); return v; },
+      get: key => { const v = values[key]; if (!v && def.fields.find(f => f.key === key && !f.optional)) throw new ConnectorError(`${def.name} is missing ${key}`); return v; },
       token: () => { if (!values.oauth?.access_token) throw new ConnectorError(`Sign in to ${def.name} in Settings → Connectors`); return values.oauth.access_token; },
       call: async (name, args) => { const tool = def.tools.find(t => t.name === name); return tool.run(tool.schema.parse(args), client); },
       gql: (query, variables) => def.gql(client, query, variables)
     };
-    if (def.oauth && values.oauth?.refresh_token && Date.now() > (values.oauth.expires_at || 0) - 60000) await this.refresh(def, values, signal);
+    if (def.oauth && values.oauth?.refresh_token && Date.now() > (values.oauth.expires_at || 0) - 60000) { await this.refresh(def, values, signal); values = await this.values(def.id); }
     return client;
   }
   async test(id, signal) {
@@ -110,6 +110,7 @@ export class Connectors {
   async oauthStart(id) {
     const def = ALL.find(d => d.id === id && d.oauth), values = await this.values(id), provider = OAUTH[def?.oauth];
     if (!def || !values.clientId) throw new Error('Save the OAuth client ID first');
+    for (const [key, pending] of this.oauthStates) if (pending.expires < Date.now()) this.oauthStates.delete(key);
     const state = randomBytes(16).toString('hex'), verifier = randomBytes(32).toString('base64url');
     this.oauthStates.set(state, { id, verifier, expires: Date.now() + 600000 });
     const u = new URL(provider.authorize(values));

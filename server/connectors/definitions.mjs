@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { basic, bearer, httpsOrigin, request, ConnectorError } from './http.mjs';
 
 const text = (max = 300) => z.string().trim().min(1).max(max);
+// Mail subjects become raw message headers, so a line break could smuggle in extra headers (e.g. Bcc).
+const oneLine = max => text(max).refine(v => !/[\r\n]/.test(v), 'Must be a single line');
 const limit = z.number().int().min(1).max(25).default(10);
 const pick = (obj, keys) => Object.fromEntries(keys.filter(k => obj?.[k] !== undefined && obj?.[k] !== null).map(k => [k, obj[k]]));
 const strip = html => String(html || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
@@ -75,7 +77,7 @@ export const CONNECTORS = [
           const list = await google(c, '/gmail/v1/users/me/messages', { ...c.opts, query: { q: query, maxResults: limit } });
           return Promise.all((list.messages || []).map(async m => { const d = await google(c, `/gmail/v1/users/me/messages/${m.id}`, { ...c.opts, query: { format: 'metadata', metadataHeaders: 'From' } }); const h = Object.fromEntries((d.payload?.headers || []).map(x => [x.name, x.value])); return { id: m.id, from: h.From, snippet: strip(d.snippet) }; }));
         } },
-      { name: 'gmail_create_draft', write: true, description: 'Create (not send) a Gmail draft.', schema: z.object({ to: z.string().email(), subject: text(200), body: text(8000) }),
+      { name: 'gmail_create_draft', write: true, description: 'Create (not send) a Gmail draft.', schema: z.object({ to: z.string().email(), subject: oneLine(200), body: text(8000) }),
         run: async ({ to, subject, body }, c) => { const raw = Buffer.from(`To: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n${body}`).toString('base64url'); const r = await google(c, '/gmail/v1/users/me/drafts', { ...c.opts, method: 'POST', body: { message: { raw } } }); return { draftId: r.id, status: 'Draft saved; not sent.' }; } },
       { name: 'calendar_upcoming', description: 'List upcoming Google Calendar events.', schema: z.object({ days: z.number().int().min(1).max(30).default(7) }),
         run: async ({ days }, c) => ((await google(c, '/calendar/v3/calendars/primary/events', { ...c.opts, query: { timeMin: new Date().toISOString(), timeMax: new Date(Date.now() + days * 864e5).toISOString(), singleEvents: true, orderBy: 'startTime', maxResults: 25 } })).items || []).map(e => ({ title: e.summary, start: e.start?.dateTime || e.start?.date, end: e.end?.dateTime || e.end?.date, location: e.location })) },
@@ -87,7 +89,7 @@ export const CONNECTORS = [
         run: async ({ fileId }, c) => { const meta = await google(c, `/drive/v3/files/${encodeURIComponent(fileId)}`, { ...c.opts, query: { fields: 'name,mimeType' } }); const path = meta.mimeType?.startsWith('application/vnd.google-apps') ? `/drive/v3/files/${encodeURIComponent(fileId)}/export` : `/drive/v3/files/${encodeURIComponent(fileId)}`; const body = await google(c, path, { ...c.opts, query: meta.mimeType?.startsWith('application/vnd.google-apps') ? { mimeType: 'text/plain' } : { alt: 'media' } }); return { name: meta.name, text: String(typeof body === 'string' ? body : JSON.stringify(body)).slice(0, 8000) }; } }
     ] },
   { id: 'microsoft', name: 'Microsoft 365', group: 'Work & docs', oauth: 'microsoft', description: 'Outlook mail, calendar and OneDrive. Uses your own Entra app registration (public client).',
-    fields: [{ key: 'clientId', label: 'Application (client) ID' }, { key: 'tenant', label: 'Tenant', placeholder: 'common' }],
+    fields: [{ key: 'clientId', label: 'Application (client) ID' }, { key: 'tenant', label: 'Tenant', placeholder: 'common', optional: true }],
     test: c => c.call('outlook_search', { query: 'meeting', limit: 1 }),
     tools: [
       { name: 'outlook_search', description: 'Search Outlook mail.', schema: z.object({ query: text(), limit }),
@@ -96,7 +98,7 @@ export const CONNECTORS = [
         run: async ({ days }, c) => ((await graph(c, '/me/calendarView', { ...c.opts, query: { startDateTime: new Date().toISOString(), endDateTime: new Date(Date.now() + days * 864e5).toISOString(), $top: 25, $select: 'subject,start,end,location' } })).value || []).map(e => ({ title: e.subject, start: e.start?.dateTime, end: e.end?.dateTime, location: e.location?.displayName })) },
       { name: 'onedrive_search', description: 'Search OneDrive files.', schema: z.object({ query: text(), limit }),
         run: async ({ query, limit }, c) => ((await graph(c, `/me/drive/root/search(q='${encodeURIComponent(query.replace(/'/g, ''))}')`, { ...c.opts, query: { $top: limit, $select: 'id,name,webUrl,lastModifiedDateTime' } })).value || []) },
-      { name: 'outlook_create_draft', write: true, description: 'Create (not send) an Outlook draft email.', schema: z.object({ to: z.string().email(), subject: text(200), body: text(8000) }),
+      { name: 'outlook_create_draft', write: true, description: 'Create (not send) an Outlook draft email.', schema: z.object({ to: z.string().email(), subject: oneLine(200), body: text(8000) }),
         run: async ({ to, subject, body }, c) => pick(await graph(c, '/me/messages', { ...c.opts, method: 'POST', body: { subject, body: { contentType: 'Text', content: body }, toRecipients: [{ emailAddress: { address: to } }] } }), ['id', 'webLink']) }
     ] },
   { id: 'notion', name: 'Notion', group: 'Work & docs', fields: [{ key: 'token', label: 'Internal integration secret', secret: true, help: 'notion.so/my-integrations, then share pages with it' }], description: 'Search and read pages shared with your integration.',
@@ -154,7 +156,7 @@ export const CONNECTORS = [
       { name: 'jira_add_comment', write: true, description: 'Add a comment to a Jira issue.', schema: z.object({ issueKey: z.string().regex(/^[A-Z][A-Z0-9]+-\d+$/), text: text(5000) }),
         run: async ({ issueKey, text: comment }, c) => pick(await request('POST', `${httpsOrigin(c.get('site'), { suffix: '.atlassian.net' })}/rest/api/3/issue/${issueKey}/comment`, { ...c.opts, headers: basic(c.get('email'), c.get('token')), body: { body: { type: 'doc', version: 1, content: [{ type: 'paragraph', content: [{ type: 'text', text: comment }] }] } } }), ['id', 'created']) }
     ] },
-  { id: 'gitlab', name: 'GitLab', group: 'Dev & projects', fields: [{ key: 'host', label: 'Host', placeholder: 'gitlab.com' }, { key: 'token', label: 'Personal access token', secret: true }], description: 'Issues and merge requests on GitLab.com or self-hosted.',
+  { id: 'gitlab', name: 'GitLab', group: 'Dev & projects', fields: [{ key: 'host', label: 'Host', placeholder: 'gitlab.com', optional: true }, { key: 'token', label: 'Personal access token', secret: true }], description: 'Issues and merge requests on GitLab.com or self-hosted.',
     test: c => request('GET', `${httpsOrigin(c.get('host') || 'gitlab.com')}/api/v4/user`, { ...c.opts, headers: bearer(c.get('token')) }).then(u => ({ user: u.username })),
     tools: [
       { name: 'gitlab_my_issues', description: 'List open GitLab issues assigned to you.', schema: z.object({ limit }),
@@ -162,7 +164,7 @@ export const CONNECTORS = [
       { name: 'gitlab_my_merge_requests', description: 'List open merge requests you authored.', schema: z.object({ limit }),
         run: async ({ limit }, c) => (await request('GET', `${httpsOrigin(c.get('host') || 'gitlab.com')}/api/v4/merge_requests`, { ...c.opts, headers: bearer(c.get('token')), query: { scope: 'created_by_me', state: 'opened', per_page: limit } })).map(m => ({ title: m.title, url: m.web_url, status: m.detailed_merge_status })) }
     ] },
-  { id: 'sentry', name: 'Sentry', group: 'Dev & projects', fields: [{ key: 'org', label: 'Organization slug' }, { key: 'token', label: 'Auth token', secret: true }, { key: 'host', label: 'Host', placeholder: 'sentry.io' }], description: 'Unresolved errors across your projects.',
+  { id: 'sentry', name: 'Sentry', group: 'Dev & projects', fields: [{ key: 'org', label: 'Organization slug' }, { key: 'token', label: 'Auth token', secret: true }, { key: 'host', label: 'Host', placeholder: 'sentry.io', optional: true }], description: 'Unresolved errors across your projects.',
     test: c => c.call('sentry_issues', { limit: 1 }),
     tools: [
       { name: 'sentry_issues', description: 'List the most frequent unresolved Sentry issues.', schema: z.object({ limit, query: z.string().max(200).default('is:unresolved') }),

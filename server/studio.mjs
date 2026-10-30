@@ -143,6 +143,10 @@ export class Studio {
       return this.withModel({ modelSrc: sdk.WHISPER_SMALL_Q8_0, modelType: 'whispercpp-transcription', modelConfig: { language: 'auto', n_threads: 6, ...vad, contextParams: { use_gpu: false } } },
         async (s, modelId) => { const segments = await s.transcribe({ modelId, audioChunk: path, metadata: true }); return { text: segments.map(x => x.text).join('').trim(), segments: segments.map(x => ({ start: x.startMs / 1000, end: x.endMs / 1000, text: x.text.trim() })), model: 'Whisper small' }; }, signal);
     }
+    if (this.capabilities?.info().capabilities.find(c => c.id === 'transcribe')?.configured) {
+      const { result } = await this.capabilities.run({ requestId: randomUUID(), capability: 'transcribe', upload: { name: 'audio.wav', base64: (await readFile(path)).toString('base64') } }, { signal });
+      return { text: result.text.trim(), segments: result.segments.map(x => ({ start: x.startMs / 1000, end: x.endMs / 1000, text: x.text.trim() })), model: 'configured speech model' };
+    }
     throw new Error('Install "Whisper small" in Settings → Models, or configure a speech model');
   }
 

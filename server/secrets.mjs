@@ -14,24 +14,29 @@ const run = promisify(execFile);
  */
 export class Secrets {
   constructor(directory) { this.directory = directory; this.account = createHash('sha256').update(directory).digest('hex').slice(0, 24); }
-  async key() {
-    if (this.cached) return this.cached;
+  key() { return (this.cached ??= this.load().catch(e => { this.cached = null; throw e; })); }
+  async load() {
     const useKeychain = process.platform === 'darwin' && process.env.QVAC_UI_KEYCHAIN !== '0';
     if (useKeychain) {
       try {
         const { stdout } = await run('security', ['find-generic-password', '-s', 'qvac-ui', '-a', this.account, '-w']);
-        if (/^[a-f0-9]{64}$/.test(stdout.trim())) return (this.cached = Buffer.from(stdout.trim(), 'hex'));
-      } catch { /* not created yet */ }
+        if (/^[a-f0-9]{64}$/.test(stdout.trim())) return Buffer.from(stdout.trim(), 'hex');
+        throw new Error('The QVAC UI key in your Keychain is malformed');
+      } catch (e) {
+        // Exit code 44 means "not found": create the key. Anything else (locked Keychain, denied access)
+        // must not replace an existing key, or every saved connector credential would become unreadable.
+        if (e.code !== 44) throw new Error(`Could not read the QVAC UI key from your Keychain: ${String(e.stderr || e.message).trim()}`);
+      }
       const fresh = randomBytes(32).toString('hex');
-      try { await run('security', ['add-generic-password', '-U', '-s', 'qvac-ui', '-a', this.account, '-w', fresh]); this.where = 'keychain'; return (this.cached = Buffer.from(fresh, 'hex')); }
+      try { await run('security', ['add-generic-password', '-U', '-s', 'qvac-ui', '-a', this.account, '-w', fresh]); this.where = 'keychain'; return Buffer.from(fresh, 'hex'); }
       catch { /* fall back to a key file */ }
     }
     const path = join(this.directory, 'secrets.key');
-    try { const hex = (await readFile(path, 'utf8')).trim(); if (/^[a-f0-9]{64}$/.test(hex)) { this.where = 'file'; return (this.cached = Buffer.from(hex, 'hex')); } } catch { /* create below */ }
+    try { const hex = (await readFile(path, 'utf8')).trim(); if (/^[a-f0-9]{64}$/.test(hex)) { this.where = 'file'; return Buffer.from(hex, 'hex'); } } catch { /* create below */ }
     const fresh = randomBytes(32).toString('hex');
     await writeFile(path, fresh, { mode: 0o600, flag: 'wx' }).catch(async e => { if (e.code !== 'EEXIST') throw e; });
     this.where = 'file';
-    return (this.cached = Buffer.from((await readFile(path, 'utf8')).trim(), 'hex'));
+    return Buffer.from((await readFile(path, 'utf8')).trim(), 'hex');
   }
   async seal(value) {
     const iv = randomBytes(12), cipher = createCipheriv('aes-256-gcm', await this.key(), iv);

@@ -117,9 +117,9 @@ export class Brain {
     const ctx = {
       conversationId: conversation.id, signal, outputs, documentIds: () => outputs.filter(o => o.documentId).map(o => o.documentId),
       emit: event => { if (event.event === 'tool_end' && event.data.nested) parts.push({ type: 'tool', id: event.data.id, name: event.data.name, status: event.data.status, display: event.data.display, audio: event.data.audio, nested: true }); emit(event); },
-      requestApproval: async ({ tool, server, args }) => {
+      requestApproval: async ({ tool, server, source, args }) => {
         const approval = this.approvals.request({ tool, args, conversationId: conversation.id, signal });
-        emit({ event: 'approval', data: { id: approval.id, digest: approval.digest, tool, server, args } });
+        emit({ event: 'approval', data: { id: approval.id, digest: approval.digest, tool, server, source, args } });
         const decision = await approval.decision;
         emit({ event: 'approval_done', data: { id: approval.id, decision } });
         return decision;

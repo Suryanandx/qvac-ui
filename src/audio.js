@@ -8,23 +8,6 @@ export function wavFile(chunks, sourceRate) {
   return new File([buffer],'voice-turn.wav',{type:'audio/wav'});
 }
 export async function fileUpload(file){if(!file||file.size>128*1024*1024)throw Error('Choose a file up to 128 MB');const bytes=new Uint8Array(await file.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=32768)binary+=String.fromCharCode(...bytes.subarray(i,i+32768));return{name:file.name,base64:btoa(binary)};}
-export function audioBlob(audio){const raw=atob(audio.base64),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));return new Blob([bytes],{type:audio.mime||'audio/wav'});}
-
-// Explicit microphone ownership. Detection only segments audio locally; recognition remains QVAC.
-export async function captureTurn({automatic=false,onLevel=()=>{},onFinish,onSilence=()=>{},isCurrent=()=>true}){
-  if(!navigator.mediaDevices?.getUserMedia)throw Error('Microphone unavailable. Upload a WAV recording instead.');
-  const stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true},video:false});
-  if(!isCurrent()){stream.getTracks().forEach(t=>t.stop());return null;}
-  let context,source,processor,gain,timer,stopped=false;const chunks=[];let samples=0,speechMs=0,lastVoice=0,heard=false;
-  const cleanup=()=>{clearTimeout(timer);if(processor){processor.onaudioprocess=null;processor.disconnect();}source?.disconnect();gain?.disconnect();stream.getTracks().forEach(t=>t.stop());context?.close().catch(()=>{});};
-  const stop=(keep=true)=>{if(stopped)return;stopped=true;cleanup();if(keep&&chunks.length){if(automatic&&!heard)onSilence();else onFinish(wavFile(chunks,context.sampleRate));}};
-  try{
-    context=new AudioContext();await context.resume();if(!isCurrent()){cleanup();return null;}
-    source=context.createMediaStreamSource(stream);processor=context.createScriptProcessor(2048,1,1);gain=context.createGain();gain.gain.value=0;
-    processor.onaudioprocess=e=>{if(stopped)return;const a=e.inputBuffer.getChannelData(0),count=Math.min(a.length,Math.max(0,context.sampleRate*30-samples));if(count<=0){stop();return;}const part=a.slice(0,count);chunks.push(part);samples+=count;const rms=Math.sqrt(part.reduce((sum,n)=>sum+n*n,0)/count),ms=count/context.sampleRate*1000;onLevel(Math.min(1,rms*8));if(rms>.018){speechMs+=ms;lastVoice=samples/context.sampleRate;if(speechMs>=250)heard=true;}const seconds=samples/context.sampleRate;if(automatic&&heard&&seconds-lastVoice>.95)stop();else if(automatic&&!heard&&seconds>8)stop();else if(seconds>=(automatic?20:30))stop();};
-    source.connect(processor);processor.connect(gain);gain.connect(context.destination);timer=setTimeout(()=>stop(),automatic?22000:30000);return{stop,stream};
-  }catch(e){cleanup();throw e;}
-}
 
 /** Decode any browser-supported audio (MP3, M4A, OGG, WebM, FLAC…) into a 16 kHz mono WAV file. */
 export async function toWav(file){

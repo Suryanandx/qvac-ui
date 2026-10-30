@@ -1,4 +1,4 @@
-const {app,BrowserWindow,session,systemPreferences,dialog}=require('electron');
+const {app,BrowserWindow,session,shell,systemPreferences,dialog}=require('electron');
 let service,win,closing=false,microphoneAllowed=false;
 app.setName('QVAC UI');
 const ownOrigin=value=>{try{return new URL(value).origin===service?.origin;}catch{return false;}};
@@ -27,10 +27,12 @@ else{
     });
     win=new BrowserWindow({width:1440,height:960,minWidth:1000,minHeight:720,backgroundColor:'#0c1015',title:'QVAC UI',
       webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true}});
-    win.webContents.setWindowOpenHandler(()=>({action:'deny'}));
+    // OAuth sign-in pages open in the system browser; the app window never opens other windows.
+    win.webContents.setWindowOpenHandler(({url})=>{if(/^https:\/\//.test(url))shell.openExternal(url);return{action:'deny'};});
     win.webContents.on('will-navigate',(event,url)=>{if(!ownOrigin(url))event.preventDefault();});
     win.webContents.on('will-attach-webview',event=>event.preventDefault());
-    session.defaultSession.on('will-download',event=>event.preventDefault()); // The copilot never downloads files.
+    // Only files the app itself saves (blob: URLs on its own origin) may download; the save dialog asks where.
+    session.defaultSession.on('will-download',(event,item)=>{if(!item.getURL().startsWith(`blob:${service.origin}/`))event.preventDefault();});
     await win.loadURL(service.url);
   }).catch(error=>{dialog.showErrorBox('QVAC UI could not start',String(error.message));app.quit();});
   app.on('window-all-closed',()=>app.quit());
